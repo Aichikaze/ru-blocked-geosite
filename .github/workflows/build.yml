@@ -18,7 +18,8 @@ jobs:
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "TAG_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "ANTIFILTER_COMMUNITY=https://community.antifilter.download/list/domains.lst" >> $GITHUB_ENV
-          echo "REFILTER_ALL=https://raw.githubusercontent.com/1andrevich/Re-filter-lists/refs/heads/main/domains_all.lst" >> $GITHUB_ENV
+          echo "RUSSIA_INSIDE=https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/inside-raw.lst" >> $GITHUB_ENV
+          echo "REFILTER_ALL=https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/domains_all.lst" >> $GITHUB_ENV
           echo "HAGEZI_DNS_ADBLOCK=https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi.txt" >> $GITHUB_ENV
         shell: bash
 
@@ -43,8 +44,9 @@ jobs:
       - name: Get and add domain lists
         run: |          
           curl -sSL $ANTIFILTER_COMMUNITY > ./antifilter-community.txt
+          curl -sSL $RUSSIA_INSIDE > ./russia-inside.txt
           curl -sSL $REFILTER_ALL > ./refilter.txt
-          cp {antifilter-community,refilter}.txt ./community/data/
+          cp {antifilter-community,russia-inside,refilter}.txt ./community/data/
           for f in ./community/data/*.txt; do mv "$f" "${f//.txt/}"; done
 
       - name: Build ad block
@@ -55,7 +57,8 @@ jobs:
 
       - name: Build Russia general blocked list
         run: |
-          echo "include:antifilter-community" > ./community/data/ru-blocked
+          echo "include:antifilter-community" >> ./community/data/ru-blocked
+          echo "include:russia-inside" >> ./community/data/ru-blocked
           echo "include:refilter" >> ./community/data/ru-blocked
           
       - name: Build geosite.dat file
